@@ -87,8 +87,8 @@
 #  define WS2812_ZERO_BYTE  0b01000000 /* 200ns at 5 MHz, 278ns at 3.6 MHz */
 #  define WS2812_ONE_BYTE   0b01110000 /* 600ns at 5 MHz, 833ns at 3.6 MHz */
 #elif CONFIG_WS2812_FREQUENCY >= 5900000 && CONFIG_WS2812_FREQUENCY <= 9000000
-#  define WS2812_ZERO_BYTE  0b01100000 /* 222ns at 9 MHz, 339ns at 5.9 MHz */
-#  define WS2812_ONE_BYTE   0b01111100 /* 556ns at 9 MHz, 847ns at 5.9 MHz */
+#  define WS2812_ZERO_BYTE  0b01100000 /* 0x60 222ns at 9 MHz, 339ns at 5.9 MHz */
+#  define WS2812_ONE_BYTE   0b01111000 /* 556ns at 9 MHz, 847ns at 5.9 MHz */
 #else
 #  error "Unsupported SPI Frequency"
 #endif
@@ -98,9 +98,9 @@
  * Aiming for 60 us, safely above the 50us required.
  */
 
-#define WS2812_RST_CYCLES (CONFIG_WS2812_FREQUENCY * 60 / 1000000 / 8)
+#define WS2812_RST_CYCLES (CONFIG_WS2812_FREQUENCY * 100 / 1000000 / 8)
 
-#define WS2812_BYTES_PER_LED  (8 * 3)
+#define WS2812_BYTES_PER_LED  (8 * WS2812_RW_PIXEL_SIZE)
 
 /* Transmit buffer looks like:
  * [<----N reset bytes---->|<-RGBn->...<-RGB0->|<----1 reset byte---->]
@@ -504,6 +504,7 @@ static ssize_t ws2812_write(FAR struct file *filep, FAR const char *buffer,
 
   for (cur_led = start_led; cur_led <= end_led; cur_led++)
     {
+      uint32_t pbuf = *pixel_buf & 0xffffff;
       ws2812_pack(tx_pixel, *pixel_buf & 0xffffff);
       pixel_buf++;
       tx_pixel += WS2812_BYTES_PER_LED;
@@ -665,6 +666,7 @@ int ws2812_leds_register(FAR const char *devpath, FAR struct spi_dev_s *spi,
     }
 
   priv->nleds  = nleds;
+  int tx_buf_size = TXBUFF_SIZE(priv->nleds);
   priv->tx_buf = kmm_zalloc(TXBUFF_SIZE(priv->nleds));
   if (!priv->tx_buf)
     {

@@ -22,7 +22,7 @@ include $(TOPDIR)/Make.defs
 
 CSRCS = sam_boot.c sam_bringup.c
 
-ifeq ($(CONFIG_SAMD2L2_SERCOM0),y)
+ifeq ($(CONFIG_SAMD2L2_SERCOM2),y)
 CSRCS += sam_spi.c
 endif
 
@@ -46,6 +46,10 @@ endif
 
 ifeq ($(CONFIG_USBDEV),y)
 CSRCS += sam_usb.c
+endif
+
+ifeq ($(CONFIG_WS2812),y)
+CSRCS += sam_ws2812.c
 endif
 
 include $(TOPDIR)/boards/Board.mk

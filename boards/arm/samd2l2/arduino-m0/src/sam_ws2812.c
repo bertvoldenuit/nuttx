@@ -1,5 +1,5 @@
 /****************************************************************************
- * boards/arm/samd2l2/arduino-m0/src/sam_bringup.c
+ * boards/arm/samd212/arduino-m0/src/sam_ws2812.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,22 +24,37 @@
 
 #include <nuttx/config.h>
 
-#include <sys/types.h>
-#include <debug.h>
 #include <errno.h>
+#include <debug.h>
+#include <stdio.h>
 
-#include <nuttx/board.h>
+#include <nuttx/spi/spi.h>
+#include <nuttx/leds/ws2812.h>
 
-#include "sam_config.h"
+#include "sam_port.h"
+#include "sam_spi.h"
 #include "arduino_m0.h"
 
-#ifdef CONFIG_WS2812_HAS_WHITE
-#define HAS_WHITE true
-#else /* CONFIG_WS2812_HAS_WHITE */
-#define HAS_WHITE false
-#endif /* CONFIG_WS2812_HAS_WHITE */
+#ifdef CONFIG_WS2812
+
 /****************************************************************************
  * Pre-processor Definitions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+/****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+/****************************************************************************
+ * Public Data
  ****************************************************************************/
 
 /****************************************************************************
@@ -51,38 +66,45 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: sam_bringup
+ * Name: board_ws2812_initialize
  *
  * Description:
- *   Bring up board features
+ *   Initialize and register the WS2812 LED driver.
+ *
+ * Input Parameters:
+ *   devno - The device number, used to build the device path as /dev/leddrvN
+ *   spino - SPI port number
+ *   nleds - number of LEDs
+ *
+ * Returned Value:
+ *   Zero (OK) on success; a negated errno value on failure.
  *
  ****************************************************************************/
 
-int sam_bringup(void)
+int board_ws2812_initialize(int devno, int spino, uint16_t nleds)
 {
-  int ret = OK;
+  struct spi_dev_s *spi;
+  char devpath[13];
+  int ret;
 
-  /* Configure the ADC driver */
+  spi = sam_spibus_initialize(spino);
+  if (spi == NULL)
+    {
+      return -ENODEV;
+    }
 
-#ifdef CONFIG_SAMD2L2_ADC
-  ret = sam_adc_setup();
+  /* Register the WS2812 driver at the specified location. */
+
+  snprintf(devpath, 13, "/dev/leddrv%d", devno);
+  ret = ws2812_leds_register(devpath, spi, nleds);
   if (ret < 0)
     {
-      syslog(LOG_ERR, "Failed to initialize the ADC driver: %d\n", ret);
+      lederr("ERROR: ws2812_leds_register(%s) failed: %d\n",
+             devpath, ret);
       return ret;
     }
-#endif
 
-#ifdef CONFIG_WS2812
-  /* Configure and initialize the WS2812 LEDs. */
-#pragma message ("Configure and initialize the WS2812 LEDs with spi driver")
-
-  ret = board_ws2812_initialize(0, WS2812_SPI, CONFIG_WS2812_LED_COUNT);
-  if (ret < 0)
-    {
-      syslog(LOG_ERR, "ERROR: board_ws2812_initialize() failed: %d\n", ret);
-    }
-#endif   
-
-  return ret;
+  return OK;
 }
+
+#endif

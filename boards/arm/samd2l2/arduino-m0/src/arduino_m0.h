@@ -68,6 +68,12 @@
 #define PORT_STATUS_LED (PORT_OUTPUT | PORT_PULL_NONE | PORT_OUTPUT_SET | \
                          PORTA | PORT_PIN17)
 
+
+/* WS2812 LEDs */
+
+#define WS2812_NLEDS 5
+#define WS2812_SPI 2
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
