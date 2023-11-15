@@ -30,6 +30,7 @@
 
 #include "xtensa.h"
 #include "xtensa_attr.h"
+#include <nuttx/bits.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -78,8 +79,6 @@
 
 #define ETS_UNCACHED_ADDR(addr) (addr)
 #define ETS_CACHED_ADDR(addr) (addr)
-
-#define BIT(nr)                 (1UL << (nr))
 
 /* Write value to register */
 
@@ -758,6 +757,26 @@ static inline bool IRAM_ATTR esp32s2_ptr_exec(const void *p)
       || (ip >= SOC_CACHE_APP_LOW && ip < SOC_CACHE_APP_HIGH)
 #endif
       || (ip >= SOC_RTC_IRAM_LOW && ip < SOC_RTC_IRAM_HIGH);
+}
+
+/****************************************************************************
+ * Name: esp32s2_ptr_rtc
+ *
+ * Description:
+ *   Check if the buffer comes from the RTC RAM.
+ *
+ * Parameters:
+ *   p - Adress of the buffer.
+ *
+ * Return Value:
+ *   True if given buffer comes from RTC RAM. False if not.
+ *
+ ****************************************************************************/
+
+static inline bool IRAM_ATTR esp32s2_ptr_rtc(const void *p)
+{
+  return ((intptr_t)p >= SOC_RTC_DATA_LOW &&
+          (intptr_t)p < SOC_RTC_DATA_HIGH);
 }
 
 #endif /* __ARCH_XTENSA_SRC_ESP32_HARDWARE_ESP32S2_SOC_H */

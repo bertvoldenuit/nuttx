@@ -405,6 +405,12 @@ config ARCH_HAVE_TEXT_HEAP
 	---help---
 		Special memory region for dynamic code loading
 
+config ARCH_HAVE_DATA_HEAP
+	bool
+	default n
+	---help---
+		Special memory region for dynamic data loading
+
 config ARCH_HAVE_COPY_SECTION
 	bool
 	default n
@@ -626,6 +632,14 @@ config ARCH_USE_TEXT_HEAP
 		regions for instruction and data and the memory region used for
 		usual malloc doesn't work for instruction.
 
+config ARCH_USE_DATA_HEAP
+	bool "Enable separate data allocation for dynamic data loading"
+	default n
+	depends on ARCH_HAVE_DATA_HEAP
+	---help---
+		This option enables architecture-specific memory allocator
+		for dynamic data loading.
+
 menuconfig ARCH_ADDRENV
 	bool "Address environments"
 	default n
@@ -672,7 +686,6 @@ config ARCH_SHM_VBASE
 
 config ARCH_KMAP_VBASE
 	hex "Kernel dynamic virtual mappings base"
-	depends on ARCH_VMA_MAPPING
 	---help---
 		The virtual address of the beginning of the kernel dynamic mapping
 		region.
@@ -729,6 +742,8 @@ config ARCH_SHM_NPAGES
 		maximum number of pages per region, and the configured size of
 		each page.
 
+endif # ARCH_VMA_MAPPING
+
 config ARCH_KMAP_NPAGES
 	int "Max kernel dynamic mapping pages"
 	default 1
@@ -740,8 +755,6 @@ config ARCH_KMAP_NPAGES
 		determined by the product of the maximum number of regions, the
 		maximum number of pages per region, and the configured size of
 		each page.
-
-endif # ARCH_VMA_MAPPING
 
 config ARCH_STACK_DYNAMIC
 	bool "Dynamic user stack"

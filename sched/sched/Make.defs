@@ -68,7 +68,7 @@ else ifeq ($(CONFIG_SCHED_RESUMESCHEDULER),y)
 CSRCS += sched_resumescheduler.c
 endif
 
-ifeq ($(CONFIG_SCHED_CPULOAD),y)
+ifneq ($(CONFIG_SCHED_CPULOAD_NONE),y)
 CSRCS += sched_cpuload.c
 ifeq ($(CONFIG_CPULOAD_ONESHOT),y)
 CSRCS += sched_cpuload_oneshot.c
@@ -94,6 +94,10 @@ endif
 
 ifeq ($(CONFIG_SCHED_BACKTRACE),y)
 CSRCS += sched_backtrace.c
+endif
+
+ifeq ($(CONFIG_SMP_CALL),y)
+CSRCS += sched_smp.c
 endif
 
 # Include sched build support

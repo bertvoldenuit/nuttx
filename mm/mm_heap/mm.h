@@ -230,6 +230,14 @@ struct mm_heap_s
 
   size_t mm_heapsize;
 
+  /* This is the heap maximum used memory size */
+
+  size_t mm_maxused;
+
+  /* This is the current used size of the heap */
+
+  size_t mm_curused;
+
   /* This is the first and last nodes of the heap */
 
   FAR struct mm_allocnode_s *mm_heapstart[CONFIG_MM_REGIONS];
@@ -251,6 +259,10 @@ struct mm_heap_s
    */
 
   FAR struct mm_delaynode_s *mm_delaylist[CONFIG_SMP_NCPUS];
+
+#if CONFIG_MM_FREE_DELAYCOUNT_MAX > 0
+  size_t mm_delaycount[CONFIG_SMP_NCPUS];
+#endif
 
   /* The is a multiple mempool of the heap */
 
@@ -295,5 +307,9 @@ int mm_size2ndx(size_t size);
 
 void mm_foreach(FAR struct mm_heap_s *heap, mm_node_handler_t handler,
                 FAR void *arg);
+
+/* Functions contained in mm_free.c *****************************************/
+
+void mm_delayfree(FAR struct mm_heap_s *heap, FAR void *mem, bool delay);
 
 #endif /* __MM_MM_HEAP_MM_H */

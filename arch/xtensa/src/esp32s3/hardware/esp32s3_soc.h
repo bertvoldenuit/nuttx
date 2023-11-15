@@ -31,6 +31,7 @@
 #endif
 
 #include "xtensa_attr.h"
+#include <nuttx/bits.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -185,8 +186,6 @@
 #define ETS_UNCACHED_ADDR(addr) (addr)
 #define ETS_CACHED_ADDR(addr) (addr)
 
-#define BIT(nr)                 (1UL << (nr))
-
 #ifndef __ASSEMBLY__
 
 /* Write value to register */
@@ -340,7 +339,7 @@
 #define SOC_RTC_DATA_LOW     0x50000000
 #define SOC_RTC_DATA_HIGH    0x50002000
 
-#define SOC_EXTRAM_DATA_LOW  0x3D000000
+#define SOC_EXTRAM_DATA_LOW  0x3C000000
 #define SOC_EXTRAM_DATA_HIGH 0x3E000000
 #define SOC_IROM_MASK_LOW    0x40000000
 #define SOC_IROM_MASK_HIGH   0x4001A100
@@ -519,6 +518,19 @@ static inline bool IRAM_ATTR esp32s3_ptr_extram(const void *p)
 {
   return ((intptr_t)p >= SOC_EXTRAM_DATA_LOW &&
           (intptr_t)p < SOC_EXTRAM_DATA_HIGH);
+}
+
+/****************************************************************************
+ * Name: esp32s3_ptr_iram
+ *
+ * Description:
+ *   Check if the pointer is in IRAM
+ *
+ ****************************************************************************/
+
+static inline bool IRAM_ATTR esp32s3_ptr_iram(const void *p)
+{
+  return ((intptr_t)p >= SOC_IRAM_LOW && (intptr_t)p < SOC_IRAM_HIGH);
 }
 
 /****************************************************************************
