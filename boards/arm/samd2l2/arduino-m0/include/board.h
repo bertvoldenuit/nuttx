@@ -378,6 +378,26 @@
 
 #define BOARD_SERCOM1_FREQUENCY      BOARD_GCLK0_FREQUENCY
 
+/* SERCOM2 SPI is available on EXT2
+ *
+ *  PIN PORT SERCOM        FUNCTION
+ *  --- ------------------ -----------
+ *  15  PA17 SERCOM2 PAD2  SPI SS
+ *  16  PA15 SERCOM2 PAD3  SPI MOSI
+ *  17  PA8  SERCOM2 PAD0  SPI MISO
+ *  18  PA9  SERCOM2 PAD1  SPI SCK
+ */
+
+#define BOARD_SERCOM2_GCLKGEN        0
+#define BOARD_SERCOM2_SLOW_GCLKGEN   BOARD_SERCOM05_SLOW_GCLKGEN
+#define BOARD_SERCOM2_MUXCONFIG      (SPI_CTRLA_DOPO_DOPAD312 | SPI_CTRLA_DIPAD0)
+#define BOARD_SERCOM2_PINMAP_PAD0    PORT_SERCOM2_PAD0_2  /* SPI_MISO */
+#define BOARD_SERCOM2_PINMAP_PAD2    0                   /* microSD_SS */
+#define BOARD_SERCOM2_PINMAP_PAD3    PORT_SERCOM2_PAD3_1 /* SPI_MOSI */
+#define BOARD_SERCOM2_PINMAP_PAD1    PORT_SERCOM2_PAD1_2 /* SPI_SCK */
+
+#define BOARD_SERCOM2_FREQUENCY      BOARD_GCLK0_FREQUENCY
+
 /* The Arduino M0 contains an Embedded Debugger (EDBG) that can be
  * used to program and debug the ATSAMD21J18A using Serial Wire Debug (SWD).
  * The Embedded debugger also include a Virtual COM port interface over
