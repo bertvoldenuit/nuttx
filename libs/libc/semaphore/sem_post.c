@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libc/string/lib_bzero.c
+ * libs/libc/semaphore/sem_post.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -23,18 +23,62 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <sys/types.h>
-#include <strings.h>
+
+#include <errno.h>
+
+#include <nuttx/semaphore.h>
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: bzero
+ * Name: sem_post
+ *
+ * Description:
+ *   When a task has finished with a semaphore, it will call sem_post().
+ *   This function unlocks the semaphore referenced by sem by performing the
+ *   semaphore unlock operation on that semaphore.
+ *
+ *   If the semaphore value resulting from this operation is positive, then
+ *   no tasks were blocked waiting for the semaphore to become unlocked; the
+ *   semaphore is simply incremented.
+ *
+ *   If the value of the semaphore resulting from this operation is zero,
+ *   then one of the tasks blocked waiting for the semaphore shall be
+ *   allowed to return successfully from its call to nxsem_wait().
+ *
+ * Input Parameters:
+ *   sem - Semaphore descriptor
+ *
+ * Returned Value:
+ *   This function is a standard, POSIX application interface.  It will
+ *   return zero (OK) if successful.  Otherwise, -1 (ERROR) is returned and
+ *   the errno value is set appropriately.
+ *
+ * Assumptions:
+ *   This function may be called from an interrupt handler.
+ *
  ****************************************************************************/
 
-void bzero(FAR void *s, size_t n)
+int sem_post(FAR sem_t *sem)
 {
-  memset(s, 0, n);
+  int ret;
+
+  /* Make sure we were supplied with a valid semaphore. */
+
+  if (sem == NULL)
+    {
+      set_errno(EINVAL);
+      return ERROR;
+    }
+
+  ret = nxsem_post(sem);
+  if (ret < 0)
+    {
+      set_errno(-ret);
+      ret = ERROR;
+    }
+
+  return ret;
 }
